@@ -1,0 +1,32 @@
+name: yt-comments-nlp-process CI/CD
+on:
+    push:
+      branches: [master]
+jobs:
+   deploy-yt-comments-nlp-process:
+       name: deploy
+       if: github.ref == 'refs/heads/master'
+       runs-on: ubuntu-latest
+       steps:
+           - name: checkout code
+             uses: actions/checkout@v3
+           - name: Configure AWS credentials
+             uses: aws-actions/configure-aws-credentials@v2
+             with:
+                 aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+                 aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
+                 aws-region: us-west-2
+           - name: Login to Amazon ECR
+             id: login-ecr
+             uses: aws-actions/amazon-ecr-login@v1
+           - name: Build, tag, and push image to Amazon ECR
+             id: build-image
+             env:
+                 ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+                 ECR_REPOSITORY: yt-comments-nlp
+                 IMAGE_TAG: latest
+             run: |
+                 docker build -t yt_nlp_process .
+                 docker tag yt_nlp_process:latest ${{ secrets.AWS_ACCOUNT_NUM}}.dkr.ecr.us-west-2.amazonaws.com/yt-comments-nlp:latest
+                 docker push ${{ secrets.AWS_ACCOUNT_NUM }}.dkr.ecr.us-west-2.amazonaws.com/yt-comments-nlp:latest
+                 aws lambda update-function-code --function-name yt-nlp-process --image-uri ${{ secrets.AWS_ACCOUNT_NUM }}.dkr.ecr.us-west-2.amazonaws.com/yt-comments-nlp:latest
