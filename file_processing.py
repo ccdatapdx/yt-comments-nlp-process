@@ -10,6 +10,7 @@ class FileProcess:
         self.s3 = boto3.client('s3')
         self.channel_name = channel_name
         self.lambda_dir = '/tmp'
+        self.local_cwd = os.getcwd()
         self.recent_file_date = self.S3_recent_string()
              
     def S3_recent_file(self):
@@ -53,15 +54,24 @@ class FileProcess:
         date = match.group()
         return date
                              
-    def write_s3(self,file_string,file_name):
-        self.s3.upload_file(file_string,'yt-channel-nlp',file_name)
+    def write_s3(self,source_file_string,s3_file_name):
+        self.s3.upload_file(source_file_string,'yt-channel-nlp',s3_file_name)
     
     def write_json(self,data,file_string) -> json:
         with open(file_string,'w') as f:
             json.dump(data,f)    
     
-    def process_file(self,data,file_type):
-        nlp_file_string = f'{self.lambda_dir}/{self.channel_name}_{self.recent_file_date}_{file_type}.json'
+    def process_file(self,data,file_type,local:bool):
+
         nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
-        self.write_json(data,nlp_file_string)
-        self.write_s3(nlp_file_string,nlp_file_name)
+
+        nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}.json'
+
+        nlp_local_string = f'{self.local_cwd}/{nlp_file_name}.json'
+
+        if local is True:
+            self.write_json(data,nlp_local_string)
+
+        else:
+            self.write_json(data,nlp_lambda_string)
+            self.write_s3(nlp_lambda_string,nlp_file_name)
