@@ -2,6 +2,7 @@ import boto3
 import json
 import os
 import re
+import pandas as pd
 
 
 class FileProcess:
@@ -70,8 +71,9 @@ class FileProcess:
         nlp_local_string = f'{self.local_cwd}/{nlp_file_name}.json'
 
         if local is True:
-            self.write_json(data,nlp_local_string)
-
+            #self.write_json(data,nlp_local_string)
+            pass
+            
         else:
-            self.write_json(data,nlp_lambda_string)
+            #self.write_json(data,nlp_lambda_string)
             self.write_s3(nlp_lambda_string,nlp_file_name)
