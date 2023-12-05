@@ -66,7 +66,7 @@ class FileProcess:
 
         nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
 
-        nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}.json'
+        nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
 
         nlp_local_string = f'{self.local_cwd}/{nlp_file_name}.json'
 
