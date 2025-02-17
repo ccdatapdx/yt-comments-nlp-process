@@ -22,7 +22,7 @@ class FileProcess:
         most_recent_file = sorted_objects[0]
         file_name = most_recent_file['Key']
         return file_name
-
+    
     def open_S3_recent(self):
         '''
         function to open most recent file from raw comments S3 bucket
@@ -57,23 +57,16 @@ class FileProcess:
                              
     def write_s3(self,source_file_string,s3_file_name):
         self.s3.upload_file(source_file_string,'yt-channel-nlp',s3_file_name)
-    
-    def write_json(self,data,file_string) -> json:
-        with open(file_string,'w') as f:
-            json.dump(data,f)    
-    
-    def process_file(self,data,file_type,local:bool):
 
+    def process_file(self,file_type):    
         nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
-
         nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
+        self.write_s3(nlp_lambda_string,nlp_file_name)
+        return
+    
+    def write_json(self,file_type,json_data: pd.DataFrame):
+        nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
+        nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
+        json_data = json_data.to_json(nlp_lambda_string)
+        return json_data
 
-        nlp_local_string = f'{self.local_cwd}/{nlp_file_name}.json'
-
-        if local is True:
-            #self.write_json(data,nlp_local_string)
-            pass
-            
-        else:
-            #self.write_json(data,nlp_lambda_string)
-            self.write_s3(nlp_lambda_string,nlp_file_name)

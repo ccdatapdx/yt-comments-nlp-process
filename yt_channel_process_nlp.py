@@ -60,6 +60,6 @@ class SpacyProcessing:
                                   keys=metadata['meta_keys'],
                                   names=metadata['meta_names'])
             spacy_data = pd.DataFrame(spacy_data).reset_index().drop(columns='level_3')
-            spacy_data = spacy_data.to_json()
-            self.file_process.process_file(spacy_data,data_type[0],local=False)
+            spacy_data = self.file_process.write_json(data_type[0],spacy_data)
+            self.file_process.process_file(spacy_data,data_type[0])
         return
