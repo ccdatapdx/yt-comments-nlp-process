@@ -3,6 +3,8 @@ import json
 import os
 import re
 import pandas as pd
+import pandas_gbq
+from google.oauth2 import service_account
 
 
 class FileProcess:
@@ -22,6 +24,12 @@ class FileProcess:
         most_recent_file = sorted_objects[0]
         file_name = most_recent_file['Key']
         return file_name
+    
+    def s3_auth(self):
+        file_name = 'yt-comments-dashboard-41b385655862.json'
+        file_path = f'{self.lambda_dir}/{file_name}'
+        self.s3.download_file('auth-ccdatapdx',file_name,file_path)
+        return 
     
     def open_S3_recent(self):
         '''
@@ -57,6 +65,20 @@ class FileProcess:
                              
     def write_s3(self,source_file_string,s3_file_name):
         self.s3.upload_file(source_file_string,'yt-channel-nlp',s3_file_name)
+    
+    def write_gbq(self,df:pd.DataFrame,destination_table:str):
+        self.s3_auth()
+        service_account_file = 'yt-comments-dashboard-41b385655862.json'
+        credentials = service_account.Credentials.from_service_account_file(
+            f'{self.lambda_dir}/{service_account_file}',
+        )
+        to_gbq = pandas_gbq.to_gbq(df,
+                                   destination_table=f'mydatasetnew.{destination_table}',
+                                   project_id='yt-comments-dashboard',
+                                   if_exists='append',
+                                   credentials=credentials
+        )
+        return to_gbq
 
     def process_file(self,file_type):    
         nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
@@ -69,4 +91,3 @@ class FileProcess:
         nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
         json_data = json_data.to_json(nlp_lambda_string)
         return json_data
-
