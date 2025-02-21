@@ -13,8 +13,7 @@ class SpacyProcessing:
         self.list_nlp = []
         self.list_ner = []
         self.nlp = spacy.load("en_core_web_sm")
-        self.file_process = FileProcess('Destiny')
-    
+        self.file_process = FileProcess('Linus Tech Tips')
     def to_pos(self,data):
         nlp_data = self.nlp(''.join(data))
         pos_to_include = ['VERB','NOUN','PRON','ADJ','PROPN']
@@ -36,7 +35,6 @@ class SpacyProcessing:
         data_dict = {'sent':self.list_sent_ner}
         data_df = pd.DataFrame(data)
         return data_df
-        
     def process_comments_nlp(self):
         data_json = self.file_process.open_S3_recent()
         data_comments = data_json['comments']
@@ -44,7 +42,6 @@ class SpacyProcessing:
             nlp_process = self.to_pos(data_comments[key]['comment_text'])
             nlp_process = nlp_process.value_counts().reset_index(name='pos_count')
             self.list_nlp.append(nlp_process)
-
             ner_process = self.to_ner(data_comments[key]['comment_text'])
             ner_process = ner_process.value_counts().reset_index(name='ner_count')
             self.list_ner.append(ner_process)
