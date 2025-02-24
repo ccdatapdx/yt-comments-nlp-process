@@ -75,7 +75,7 @@ class FileProcess:
         to_gbq = pandas_gbq.to_gbq(df,
                                    destination_table=f'yt_comments_nlp.{destination_table}_{self.channel_name}',
                                    project_id='yt-comments-dashboard',
-                                   if_exists='append',
+                                   if_exists='replace',
                                    credentials=credentials
         )
         return to_gbq

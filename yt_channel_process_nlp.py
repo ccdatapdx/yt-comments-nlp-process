@@ -12,7 +12,7 @@ class SpacyProcessing:
         self.list_topics_ner = []
         self.list_nlp = []
         self.list_ner = []
-        self.nlp = spacy.load("en_core_web_sm")
+        self.nlp = spacy.load("en_core_web_trf")
         self.file_process = FileProcess('Linus Tech Tips')
     def to_pos(self,data):
         nlp_data = self.nlp(''.join(data))
