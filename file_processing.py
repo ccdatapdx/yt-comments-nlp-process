@@ -80,14 +80,10 @@ class FileProcess:
         )
         return to_gbq
 
-    def process_file(self,file_type):    
+    def process_file(self,file_type:str,data:pd.DataFrame):    
         nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
         nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
+        data.to_json(nlp_lambda_string)
         self.write_s3(nlp_lambda_string,nlp_file_name)
+        self.write_gbq(data,file_type)
         return
-    
-    def write_json(self,file_type,json_data: pd.DataFrame):
-        nlp_file_name = f'{self.channel_name}_{self.recent_file_date}_{file_type}.json'
-        nlp_lambda_string = f'{self.lambda_dir}/{nlp_file_name}'
-        json_data = json_data.to_json(nlp_lambda_string)
-        return json_data
