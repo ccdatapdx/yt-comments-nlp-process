@@ -66,3 +66,27 @@ class SpacyProcessing:
         self.file_process.process_file(ner_data,spacy_data_ner)
         self.file_process.process_file(pos_data,spacy_data_pos)
         return
+    
+    def process_spacy_pos(self):
+        spacy_proc = self.process_comments_nlp()
+        metadata = self.file_process.open_S3_recent_metadata()
+        pos_data = 'pos_data'
+        spacy_proc_pos = spacy_proc['pos_data']
+        spacy_data_pos = pd.concat(spacy_proc_pos,
+                                  keys=metadata['meta_keys'],
+                                  names=metadata['meta_names'])
+        spacy_data_pos = pd.DataFrame(spacy_data_pos).reset_index().drop(columns='level_3')
+        spacy_data_pos = self.file_process.process_file(pos_data,spacy_data_pos)
+        return spacy_data_pos
+
+    def process_spacy_ner(self):
+        spacy_proc = self.process_comments_nlp()
+        metadata = self.file_process.open_S3_recent_metadata()
+        ner_data = 'ner_data'
+        spacy_proc_ner = spacy_proc['ner_data']
+        spacy_data_ner = pd.concat(spacy_proc_ner,
+                                  keys=metadata['meta_keys'],
+                                  names=metadata['meta_names'])
+        spacy_data_ner = pd.DataFrame(spacy_data_ner).reset_index().drop(columns='level_3')
+        spacy_data_ner =  self.file_process.process_file(ner_data,spacy_data_ner)
+        return spacy_data_ner
